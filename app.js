@@ -14,7 +14,7 @@ const {notFound, errorHandler} = require('./middlewares/errorMiddleware')
 const app = express();
 app.use(express.json({extended: true}))
 app.use(express.urlencoded({extended: true}))
-app.use(cors({credentials: true, origin: "https://starterblog-r6a9p8kym-dayotechs-projects.vercel.app"}))
+app.use(cors({credentials: true, origin: "http://localhost:5173"}))
 app.use(upload())
 app.use('/uploads', express.static(__dirname + '/uploads'))
 
