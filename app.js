@@ -13,7 +13,7 @@ const app = express();
 app.use(cors({
     credentials: true,
     methods: ['GET', 'PUT', 'POST', 'PATCH', 'DELETE'],
-    origin: ["http://localhost:5173", "https://starterblog-indol.vercel.app"],
+    origin: ["http://localhost:5173", "https://starterblog.onrender.com"],
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
