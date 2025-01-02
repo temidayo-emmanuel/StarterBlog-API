@@ -6,6 +6,8 @@ const upload = require('express-fileupload');
 
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
+
+
 const { notFound, errorHandler } = require('./middlewares/errorMiddleware');
 
 const app = express();
