@@ -13,41 +13,62 @@ const HttpError = require("../models/errorModel")
 // PROTECTED
 const createPost = async (req, res, next) => {
     try {
-        let {title, category, description} = req.body;
-        if(!title || !category || !description || !req.files) {
-            return next(new HttpError("Fill in all fields and choose thumbnail", 422))
+        let { title, category, description } = req.body;
+
+        // Validate inputs
+        if (!title || !category || !description || !req.files) {
+            return next(new HttpError("Fill in all fields and choose a thumbnail", 422));
         }
-        const {thumbnail} = req.files;
-        // check the file size
-        if(thumbnail.size > 2000000) {
-            return next(new HttpError("Thumbnail too big. File should be less than 2mb"))
+
+        const { thumbnail } = req.files;
+
+        // Check the file size
+        if (thumbnail.size > 2000000) {
+            return next(new HttpError("Thumbnail too big. File should be less than 2MB", 422));
         }
+
+        // Generate a new file name
         let fileName = thumbnail.name;
-        let splittedFilename = fileName.split('.')
-        let newFileName = splittedFilename[0] + uuid() + "." + splittedFilename[splittedFilename.length - 1]
-        thumbnail.mv(path.join(__dirname, '..', '/uploads', newFileName), async (err) => {
-            if(err) {
-                return next(new HttpError(err))
+        let splittedFilename = fileName.split('.');
+        let newFileName = `${splittedFilename[0]}${uuid()}.${splittedFilename[splittedFilename.length - 1]}`;
+
+        // Ensure the 'uploads' folder exists before moving the file
+        const uploadsDir = path.join(__dirname, '..', 'uploads');
+        if (!fs.existsSync(uploadsDir)) {
+            fs.mkdirSync(uploadsDir);
+        }
+
+        // Move the thumbnail to the 'uploads' folder
+        thumbnail.mv(path.join(uploadsDir, newFileName), async (err) => {
+            if (err) {
+                return next(new HttpError(err));
             } else {
-                const newPost = await Post.create({title, category, description, thumbnail: newFileName, creator: req.user.id})
-                if(!newPost) {
-                    return next(new HttpError("Post couldn't be created", 422))
+                // Create a new post
+                const newPost = await Post.create({
+                    title,
+                    category,
+                    description,
+                    thumbnail: newFileName,
+                    creator: req.user.id
+                });
+
+                if (!newPost) {
+                    return next(new HttpError("Post couldn't be created", 422));
                 }
-                // find user and increase post count by 1
+
+                // Find the user and increase post count by 1
                 const currentUser = await User.findById(req.user.id);
                 const userPostCount = currentUser.posts + 1;
-                await User.findByIdAndUpdate(req.user.id, {posts: userPostCount})
+                await User.findByIdAndUpdate(req.user.id, { posts: userPostCount });
 
-                res.status(201).json(newPost)
+                // Respond with the new post
+                res.status(201).json(newPost);
             }
-
-        })
+        });
     } catch (error) {
-        return next(new HttpError(error))
+        return next(new HttpError(error));
     }
-}
-
-
+};
 
 
 
