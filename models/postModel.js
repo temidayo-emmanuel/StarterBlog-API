@@ -25,6 +25,7 @@ const postSchema = new mongoose.Schema(
           "Investment",
           "Uncategorized",
           "Weather",
+          "Technology"
         ],
         message: "{VALUE} is not a valid category",
       },
